@@ -38,6 +38,7 @@ class Env(UR5, gym.Env):
             "is_done": output.is_done,
             "is_success": self._is_success,
             "reward": output.reward,
+            "observation": observation
         }
         return output
 

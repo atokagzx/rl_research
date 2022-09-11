@@ -46,13 +46,14 @@ def play_episode(episode_id, headless = False):
     episode_length = 0
     for i in range(50):
         # generate random action [-1, 1]
-        obs, reward, done, info = env.step((np.random.random(3) -.5) * 2)
+        state, reward, done, info = env.step((np.random.random(3) -.5) * 2)
         is_success = info['is_success']
         episode_reward += reward
         episode_length += 1
         dt = 1.0 / 120.0
-        print("is_success: {}, reward: {}, episode_reward: {}, episode_length: {}".format(is_success, reward, episode_reward, episode_length))
-        print("observation:\n{}".format(obs))
+        print("="*80)
+        print("is_success: {}\nreward: {}\nepisode_reward: {}\nepisode_length: {}".format(is_success, reward, episode_reward, episode_length))
+        print("state: {}".format(state))
         if done:
             break
         if not headless:

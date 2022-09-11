@@ -8,14 +8,16 @@ import pybullet
 import pybullet_data
 import numpy as np
 from collections import namedtuple
+JOINT_TYPE = ('REVOLUTE', 'PRISMATIC', 'SPHERICAL', 'PLANAR', 'FIXED')
 
 class UR5(object):
     initial_ee_pos = np.asarray((0.5, 0.0, 0.8))
     initial_orient_values = np.asarray((0, np.pi/2, np.pi))
     position_bounds = np.asarray(((0.2, 0.7), (-0.3, 0.3), (0.63, 0.9)))
-    joint_type = ['REVOLUTE', 'PRISMATIC', 'SPHERICAL', 'PLANAR', 'FIXED']
     models_path = '/Users/sav/rl_research/models'
 
+    joint_tuple = namedtuple('joint', ["index", "name", "type",  "linkName", "lowerLimit", "upperLimit", "maxForce", "maxVelocity","damping", "friction"])
+    
     def __init__(self, is_train=False):
         self._connect_bullet(is_train)
         pybullet.resetDebugVisualizerCamera(1.4, 45, -30, (0.6, 0, 0.6))
@@ -49,8 +51,7 @@ class UR5(object):
         obs.gripper_orient = pybullet.getEulerFromQuaternion(gripper_orientation)
         obs.gripper_vel = np.asarray(gripper_velocity)
         obs.gripper_ang_vel = np.asarray(gripper_angular_velocity)
-        # obs.gripper_closed = self._gripper_state
-
+        
         # object state
         object_position, object_orientation = pybullet.getBasePositionAndOrientation(self.object)
         obs.obj_pos = np.asarray(object_position)
@@ -67,9 +68,9 @@ class UR5(object):
             maxNumIterations=1000,
             residualThreshold=.01
         )
-        for joint, pos in zip(self.joints, joint_poses):
+        for joint, pos in zip(self.joints_revolute, joint_poses):
             pybullet.setJointMotorControl2(
-                self.robot, joint['jointID'],
+                self.robot, joint.index,
                 pybullet.POSITION_CONTROL,
                 targetPosition=pos,
             )
@@ -104,9 +105,9 @@ class UR5(object):
         self.obj_origin_pos = np.asarray((x_pos_obj, y_pos_obj, z_pos_obj))
         pybullet.resetBasePositionAndOrientation(
             self.object, self.obj_origin_pos, pybullet.getQuaternionFromEuler((0, 0, 0)))
-        for joint in self.joints:
+        for joint in self.joints_revolute:
             pybullet.resetJointState(
-                self.robot, joint['jointID'],
+                self.robot, joint.index,
                 0,
                 0
             )
@@ -126,29 +127,17 @@ class UR5(object):
         self.table = pybullet.loadURDF('table/table.urdf', globalScaling=1, basePosition=[0.5, 0, 0])
         pybullet.setAdditionalSearchPath(self.models_path)
         self.object = pybullet.loadURDF('sphere/sphere.urdf', (0.6, 0, 0.8), pybullet.getQuaternionFromEuler([0, 0, 0]))
-        self.robot, self.joints, self.joints_rev, self.joints_fix = self._spawn_robot('ur5/ur5.urdf', pos=(0, 0, 0.63), angle=(0, 0, 0), )        
+        self._spawn_robot('ur5/ur5.urdf', pos=(0, 0, 0.63), angle=(0, 0, 0))        
         self._reset_world()
 
-    def _spawn_robot(self, urdf_path, pos, angle, ee_pos = None, ee_orientation = None):
+    def _spawn_robot(self, urdf_path, pos, angle):
         robot = pybullet.loadURDF(urdf_path, pos, pybullet.getQuaternionFromEuler(angle))
         joints = []
-        joints_rev = {}
-        joints_fix = {}
-
         for joint_id in range(pybullet.getNumJoints(robot)):
             info = pybullet.getJointInfo(robot, joint_id)
-            data = {
-                'jointID': info[0],
-                'jointName': info[1].decode('utf-8'),
-                'jointType': self.joint_type[info[2]],
-                'jointLowerLimit': info[8],
-                'jointUpperLimit': info[9],
-                'jointMaxForce': info[10],
-                'jointMaxVelocity': info[11]
-            }
-            if data['jointType'] != 'FIXED':
-                joints.append(data)
-                joints_rev[data['jointName']] = joint_id
-            else:
-                joints_fix[data['jointName']] = joint_id
-        return robot, joints, joints_rev, joints_fix
+            joint = self.joint_tuple(info[0], info[1].decode("utf-8"), JOINT_TYPE[info[2]], info[12].decode("utf-8"), info[8], info[9], info[10], info[11], info[6], info[7])
+            joints.append(joint)
+        self.joints = joints
+        self.joints_fixed = tuple(filter(lambda x: x.type == 'FIXED', joints))
+        self.joints_revolute = tuple(filter(lambda x: x.type == 'REVOLUTE', joints))
+        self.robot = robot
