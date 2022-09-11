@@ -151,16 +151,4 @@ class UR5(object):
                 joints_rev[data['jointName']] = joint_id
             else:
                 joints_fix[data['jointName']] = joint_id
-        joint_poses = [0] * 6
-        joint_poses[1] = -0.5
-        joint_poses[2] = 1
-        
-        for joint_id in range(6):
-            pybullet.setJointMotorControl2(
-                robot, joints[joint_id]['jointID'],
-                pybullet.POSITION_CONTROL,
-                targetPosition=joint_poses[joint_id],
-            )
-        for _ in range(5):
-            pybullet.stepSimulation()
         return robot, joints, joints_rev, joints_fix
