@@ -68,6 +68,7 @@ class Env(UR5, gym.Env):
         output.is_done = self._is_done(observation, is_success)
         output.info = {
             "is_success": is_success,
+            "done": output.is_done,
             "cumulutive_reward": self._cumulative_reward,
             "observation": observation
         }
