@@ -24,7 +24,7 @@ parser.add_argument('--screencast',
 
 parser.add_argument('-m', '--model', 
                     type=str, 
-                    help="Path to trained model (default: ./trained_models/[SKILL]/UR_ENV/best_model.zip)", 
+                    help="Path to trained model (default: ./trained_weights/[SKILL]/best_model.zip)", 
                     default=None)
 
 parser.add_argument('-a', '--algo',
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     if args.model == None:
-        args.model = "trained_models/UR_ENV_" + args.skill + "/best_model.zip"
+        args.model = "trained_weights/" + args.skill + "/best_model.zip"
     save_path = args.model
     print("-----------------------------------------\n")
     print("skill   :", args.skill)
