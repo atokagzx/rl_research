@@ -1,0 +1,12 @@
+__pychache__
+README.md
+~*
+*~
+*.pyc
+tensorboard_log/
+trained_models/
+screencast/
+*.zip
+.DS_Store
+.vscode/
+catkin_ws/
