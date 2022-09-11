@@ -5,7 +5,7 @@ from collections import namedtuple
 
 class Env(UR5, gym.Env):
     action_space = gym.spaces.Box(low=-1, high=1, shape=(3,), dtype='float32')
-    obs_space = gym.spaces.Dict(dict(
+    observation_space = gym.spaces.Dict(dict(
             observation=gym.spaces.Box(-np.inf, np.inf, shape=(6,), dtype='float32')
         ))
     reward_range = (-np.inf, 0)
@@ -43,7 +43,7 @@ class Env(UR5, gym.Env):
         return output
 
     def _compute_state(self, observation):
-        return np.concatenate((observation.gripper_pos, observation.obj_pos))
+        return {"observation": np.concatenate((observation.gripper_pos, observation.obj_pos))}
 
     def _compute_reward(self, observation):
         return -np.linalg.norm(observation.gripper_pos - observation.obj_pos)
