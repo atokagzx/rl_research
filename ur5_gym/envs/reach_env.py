@@ -4,7 +4,7 @@ Gym environment for the reach skill of the robot arm.
 
 import gym
 import numpy as np
-from envs.ur5_sim import UR5
+from ur5_gym.envs.ur5_sim import UR5
 from collections import namedtuple
 
 class Env(UR5, gym.Env):

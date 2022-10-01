@@ -1,1 +1,0 @@
-This path is used for pre-trained weights

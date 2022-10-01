@@ -6,6 +6,7 @@ import argparse
 import numpy as np
 import pybullet
 from stable_baselines3 import PPO
+import ur5_gym
 import os
 import shutil
 screencast = False
@@ -98,7 +99,7 @@ if __name__ == "__main__":
     #choose environment for skill 
     try:
         if args.skill == 'reach': 
-            from envs.reach_env import Env as ENV   
+            ENV = ur5_gym.ReachEnv
         else:
             raise ImportError
     except ImportError as error:

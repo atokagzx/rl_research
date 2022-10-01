@@ -3,10 +3,12 @@ README.md
 ~*
 *~
 *.pyc
-tensorboard_log/
-trained_weigths/
-screencast/
 *.zip
 .DS_Store
 .vscode/
+*.zip
+*egg-info/
 catkin_ws/
+tensorboard_log/
+trained_weigths/
+screencast/

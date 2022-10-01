@@ -2,8 +2,7 @@
 UR5 robot arm Environment with default parameters
 License: MIT- license
 """
-
-from sys import flags
+import os
 import pybullet
 import pybullet_data
 import numpy as np
@@ -16,9 +15,7 @@ class UR5(object):
     initial_ee_pos = np.asarray((0.5, 0.0, 0.8))
     initial_orient_values = np.asarray((0, np.pi/2, np.pi))
     position_bounds = np.asarray(((0.2, 0.7), (-0.3, 0.3), (0.63, 0.9)))
-    models_path = '/Users/sav/rl_research/models'
-
-    
+    models_path = str(os.path.join(os.path.dirname(__file__), '..', 'models'))
     def __init__(self, headless=False):
         '''
         Initialize the environment. Connect to the physics server and load the robot and object.

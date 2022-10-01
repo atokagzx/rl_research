@@ -1,11 +1,13 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
 
 from time import sleep
 import argparse
 import numpy as np
 import os
 import shutil
+import ur5_gym
+
 screencast = False
 headless = False
 # Instantiate the parser
@@ -69,7 +71,7 @@ if __name__ == "__main__":
     print("viz     :", not args.headless)
     print("scrcast :", args.screencast)
     print("\n-----------------------------------------")
-    from envs.reach import Env as ENV
+    ENV = ur5_gym.ReachEnv
     env = ENV(headless)
     try:
         # Use deterministic actions for evaluation
