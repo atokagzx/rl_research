@@ -18,7 +18,7 @@ class Env(UR5, gym.Env):
         '''
         @param headless: if True, the simulation is run in headless mode
         '''
-        UR5.__init__(self, headless)
+        UR5.__init__(self, headless, gripper_state=False)
     
     def step(self, action = None):
         '''
