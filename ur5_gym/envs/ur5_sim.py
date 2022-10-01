@@ -46,11 +46,14 @@ class UR5(object):
         Step the simulation forward
         @param action: action to be applied to the robot
         '''
+        action = action.copy()
+        gripper_position, _gripper_orientation, _, _, _, _, _gripper_velocity, _gripper_angular_velocity = \
+            pybullet.getLinkState(self.robot, linkIndex = 7, computeLinkVelocity=True)
         if action is None:
             pybullet.stepSimulation()
             return
         action = np.clip(action, -1, 1)
-        new_ee_pos = np.clip(np.array(action) * 0.1 + self._current_ee_pos, self.position_bounds[:, 0], self.position_bounds[:, 1])
+        new_ee_pos = np.clip(np.array(action) * 0.1 + gripper_position, self.position_bounds[:, 0], self.position_bounds[:, 1])
         self._move_hand(new_ee_pos)
         pybullet.stepSimulation()
         self._current_ee_pos = new_ee_pos
