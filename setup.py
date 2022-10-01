@@ -8,7 +8,7 @@ setup(
     author_email="yar21sav@gmail.com",
     packages=["ur5_gym"],
     license="GNU Lesser General Public License v3",
-    install_requires=["gym>=0.21", "pybullet", "numpy", "scipy", "opencv-python", "stable-baselines3", "tensorboard", "matplotlib", "urx"],
+    install_requires=["gym>=0.21", "pybullet", "numpy", "opencv-python", "stable-baselines3", "tensorboard", "matplotlib", "urx"],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
