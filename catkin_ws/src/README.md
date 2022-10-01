@@ -1,0 +1,1 @@
+This folder is used for the ROS packages. You are able to build URDF descriptions from XACRO here.
