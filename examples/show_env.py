@@ -48,7 +48,7 @@ def play_episode(episode_id, headless = False):
     episode_length = 0
     for i in range(50):
         # generate random action [-1, 1]
-        state, reward, done, info = env.step((np.random.random(3) -.5) * 2)
+        state, reward, done, info = env.step((np.random.random(env.action_space.shape[0]) -.5) * 2)
         is_success = info['is_success']
         episode_reward += reward
         episode_length += 1

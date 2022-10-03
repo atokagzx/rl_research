@@ -7,7 +7,6 @@ from stable_baselines3 import SAC, TD3, PPO
 from stable_baselines3.common.noise import NormalActionNoise
 from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback
 from stable_baselines3.common.monitor import Monitor
-import torch as th
 import ur5_gym
 
 

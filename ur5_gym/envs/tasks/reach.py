@@ -18,7 +18,7 @@ class Env(UR5, gym.Env):
         '''
         @param headless: if True, the simulation is run in headless mode
         '''
-        UR5.__init__(self, headless)
+        UR5.__init__(self, "ee3dof", headless, gripper_state=False)
     
     def step(self, action = None):
         '''
@@ -79,7 +79,10 @@ class Env(UR5, gym.Env):
         Compute the state.
         State: [gripper_pos, obj_pos]
         '''
-        return {"observation": np.concatenate((observation.gripper_pos, observation.obj_pos))}
+        state = np.concatenate((
+            observation.gripper_pos,
+            observation.obj_pos))
+        return {"observation": state}
 
     def _compute_reward(self, observation):
         '''
@@ -95,9 +98,9 @@ class Env(UR5, gym.Env):
     def _is_done(self, observation, is_success):
         '''
         Check if the episode is done.
-        Conditions: more than 500 steps for current episode or success is achieved
+        Conditions: more than 300 steps for current episode or success is achieved
         '''
-        return self._step_id == 500 or is_success
+        return self._step_id == 300 or is_success
 
     def _is_success(self, observation):
         '''
