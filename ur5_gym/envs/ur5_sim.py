@@ -19,13 +19,17 @@ class UR5(object):
     initial_ee_pos = np.asarray((0.5, 0.0, 0.7))
     initial_orient_values = np.asarray(DEFAULT_ORIENT)
     position_bounds = np.asarray(((0.2, 0.7), (-0.3, 0.3), (0.63, 0.9)))
+    orientation_bounds = np.asarray(((-np.pi, np.pi), (-np.pi, np.pi), (-np.pi, np.pi)))
     models_path = str(os.path.join(os.path.dirname(__file__), '..', 'models'))
     
-    def __init__(self, headless=False, gripper_state=True):
+    def __init__(self, operating_mode, headless=False, gripper_state=True):
         '''
         Initialize the environment. Connect to the physics server and load the robot and object.
+        @param operating_mode: operating mode of the robot. Can be (ee3dof, ee6dof, joints)
         @param headless: if True, run the simulation without GUI
         '''
+        assert operating_mode in ('ee3dof', 'ee6dof', 'joints')
+        self.operating_mode = operating_mode
         self.ee_index = 9
         self.DEFAULT_GRIPPER_STATE = gripper_state
         self._connect_bullet(headless)
@@ -53,19 +57,42 @@ class UR5(object):
         Step the simulation forward
         @param action: action to be applied to the robot
         '''
-        action = action.copy()
-        gripper_state = self.DEFAULT_GRIPPER_STATE
-        if len(action) == 4:
-            gripper_state = action[3]
-            action = action[:3]
-        gripper_position, _gripper_orientation, _, _, _, _, _gripper_velocity, _gripper_angular_velocity = \
-            pybullet.getLinkState(self.robot, linkIndex = self.ee_index, computeLinkVelocity=True)
         if action is None:
             pybullet.stepSimulation()
             return
+        action = action.copy()
         action = np.clip(action, -1, 1)
-        new_ee_pos = np.clip(np.array(action) * 0.2 + gripper_position, self.position_bounds[:, 0], self.position_bounds[:, 1])
-        self._move_hand(new_ee_pos, DEFAULT_ORIENT, gripper_state = gripper_state)
+        gripper_state = self.DEFAULT_GRIPPER_STATE
+        gripper_position, gripper_orientation, _, _, _, _, _gripper_velocity, _gripper_angular_velocity = \
+            pybullet.getLinkState(self.robot, linkIndex = self.ee_index, computeLinkVelocity=True)
+        gripper_orientation = pybullet.getEulerFromQuaternion(gripper_orientation)
+        if self.operating_mode in 'ee3dof':
+            assert len(action) in (3, 4)
+            if len(action) == 4:
+                gripper_state = action[3]
+            pos = action[:3]
+            orientation = DEFAULT_ORIENT
+            pos = np.clip(np.array(pos) * 0.2 + gripper_position, self.position_bounds[:, 0], self.position_bounds[:, 1])
+
+        elif self.operating_mode == 'ee6dof':
+            assert len(action) in (6, 7)
+            if len(action) == 7:
+                gripper_state = action[6]
+            pos = action[:3]
+            orientation = action[3:6]
+            pos = np.clip(np.array(pos) * 0.2 + gripper_position, self.position_bounds[:, 0], self.position_bounds[:, 1])
+            orientation = np.clip(np.array(orientation) * 0.5 + gripper_orientation, self.orientation_bounds[:, 0], self.orientation_bounds[:, 1])
+
+        elif self.operating_mode == 'joints':
+            raise NotImplementedError
+            assert len(action) in (6, 7)
+            if len(action) == 7:
+                gripper_state = action[6]
+            joints = action[:6]
+
+        if self.operating_mode in ('ee3dof', 'ee6dof'):
+            self._move_hand(pos, orientation, gripper_state = gripper_state)
+
         pybullet.stepSimulation()
         
     def _observation(self):
