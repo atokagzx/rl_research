@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+    agent:
+    # build arg to specify the agent version
+    build:
+        context: .
+        args:
+          - from=ubuntu:20.04
+        volumes:
+          - /dev:/dev
+          - ../:/workspace
+          - /tmp/.X11-unix:/tmp/.X11-unix:rw
+        privileged: true
+        environment:
+          - DISPLAY=host.docker.internal:0
+          - XAUTHORITY=${XAUTHORITY}
+          - QT_X11_NO_MITSHM=1
+        networks:
+          - host
+    ur_sim:
+        image: universalrobots/ursim_cb3:latest
+        volumes:
+          - /tmp/.X11-unix:/tmp/.X11-unix:rw
+        environment:
+          - ROBOT_MODEL=UR5
+        networks:
+          - host
+
+networks:
+    host:
+        external: true
